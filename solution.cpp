@@ -1,14 +1,9 @@
+#include <string>
 #include <iostream>
-#include <string.h>
-#include <bitset>
 #include <vector>
 #include <random>
 
 using namespace std;
-
-// LEVEL 2 CODE
-
-// RED BLACK TREE
 
 enum Color {RED, BLACK};
 
@@ -68,11 +63,10 @@ class treeNode {
 class RBTree {
     private:
         treeNode* root;
-        int magicNumber;
+        int magicNumber = 0;
     public:
         RBTree() {
             root = nullptr;
-            magicNumber = 0;
         };
 
         int getMagic() {
@@ -113,8 +107,8 @@ class RBTree {
             fixTree(newTreeNode);
         }
 
-        treeNode* rightChild;
-        treeNode* leftChild;
+        treeNode* rightChild = nullptr;
+        treeNode* leftChild = nullptr;
 
         void rotateLeft(treeNode* treeNode) {
             rightChild = treeNode->getRight();
@@ -162,9 +156,9 @@ class RBTree {
             treeNode->setParent(leftChild);
         };
 
-        treeNode* parent;
-        treeNode* grandparent;
-        treeNode* uncle;
+        treeNode* parent = nullptr;
+        treeNode* grandparent = nullptr;
+        treeNode* uncle = nullptr;
 
         void fixTree(treeNode* treeNode) {
             while (treeNode != root && getColor(treeNode) == RED && getColor(treeNode->getParent()) == RED) {
@@ -216,160 +210,38 @@ class RBTree {
         }
 };
 
-long getMagic(int key, RBTree* rbt) {
-    return key * rbt->getMagic() * 137680724221;
+long solution(int key, vector<int>& vals) {
+    RBTree* rbt = new RBTree();
+    for (int i = 0; i < vals.size(); i++) {
+        rbt->insertValue(vals.at(i));
+    }
+    return rbt->getMagic() * key * 137680724221; // 5147 * 5153 * 5167, multiplication of large primes
 }
-
-// NODE ARRAY STRUCTURE, FOR CONVOLUTION
-
-class Node {
-    private:
-        int val;
-        vector<Node*> children;
-        bool redBlackTreePath;
-        bool finalNode;
-        RBTree* tree;
-    public:
-        Node(int val) {
-            this->val = val;
-            children = vector<Node*>();
-            redBlackTreePath = true;
-            finalNode = false;
-            tree = nullptr;
-        };
-
-        void setFinalNode(bool finalNode) {
-            this->finalNode = finalNode;
-        }
-
-        void setRedBlackPath(bool path) {
-            this->redBlackTreePath = path;
-        }
-
-        void setTree(RBTree* tree) {
-            this->tree = tree;
-        }
-
-        void addChild(Node* child) {
-            children.push_back(child);
-        }
-
-        void replaceChild(Node* child, int index) {
-            children.at(index) = child;
-        }
-
-        int getValue() {
-            return this->val;
-        };
-
-        vector<Node*> getChildren() {
-            return this->children;
-        }
-
-        bool isRedBlackTreeNode() {
-            return this->redBlackTreePath;
-        }
-
-        bool isFinalNode() {
-            return this->finalNode;
-        }
-
-        RBTree* getTree() {
-            return this->tree;
-        }
-};
-
-Node* insertNode(Node* head, Node* newHead, int key) {
-    for (int i = 0; i < 25; i++) {
-        Node* newNode = new Node(i);
-        newNode->setRedBlackPath(false);
-        newHead->addChild(newNode);
-    }
-    // 3547 * 3557
-    newHead->replaceChild(head, (newHead->getValue() * 126 * key) % newHead->getChildren().size());
-    return newHead;
-};
-
-RBTree* traverse(Node* head, int key) {
-    while (head->isRedBlackTreeNode() && !head->isFinalNode()) {
-        head = head->getChildren().at((key * head->getValue() * 126) % head->getChildren().size());
-    }
-    return head->getTree();
-};
-
-
-// LEVEL 1 CODE
-
-bool isPasscode(string passcode) {
-    string binaryString = "";
-    for (int i = 0; i < passcode.size(); i++) {
-        binaryString += bitset<8>(passcode.c_str()[i]).to_string();
-    }
-    return binaryString == "010100110110000101111001010010000110010101101100011011000110111101010100011011110100110101111001010011000110100101110100011101000110110001100101010001100111001001101001011001010110111001100100";
-}
-
-// MAIN FUNCTION
 
 int main() {
+    vector<int> vals;
+    string key;
     string input;
-    // CREATE FUNCTION THAT CHANGES THIS VALUE DURING RUNTIME
-    int key = 1;
-    srand(time(NULL));
-    cout << "What is the secret passcode?" << endl;
-    getline(cin, input);
 
-    // Layer 1, simple reversing of what this code does; passcode will be SayHelloToMyLittleFriend
-    if (isPasscode(input)) {
-        cout << endl;
-        cout << "I can't believe you figured this out! The rest should be REALLY easy!" << endl;
-        system("sleep 5");
-    } else {
-        system("sleep 7");
+    cout << "Enter the key value:" << endl;
+    try {
+        getline(cin, key);
+    } catch (exception e) {
+        cout << "Bad arguments" << endl;
         exit(1);
     }
 
-    // Level 2, need to know the magic number; computed red black tree magic
-    RBTree* rbt = new RBTree();
-    vector<int> values;
-    for (int i = 0; i < 30; i++) {
-        int val = rand() % 1000 + 1;
-        values.push_back(val);
-        rbt->insertValue(val);
-    }
-    cout << endl;
-
-    Node* head = new Node(3);
-    head->setFinalNode(true);
-    head->setTree(rbt);
-    for (int i = 0; i < 15; i++) {
-        Node* nextNode = new Node(i * i);
-        head = insertNode(head, nextNode, key);
-    }
-
-    cout << "What is the magic number?" << endl;
+    cout << "Enter the values of the nodes one at a time, type 'exit' to finish" << endl;
     getline(cin, input);
-    if (traverse(head, stoi(input)) == rbt) {
-        cout << endl;
-        cout << "See how easy this is?" << endl << endl;
-        system("sleep 5");
-    } else {
-        system("sleep 7");
-        exit(1);
+    while (input != "exit") {
+        try {
+            vals.push_back(stoi(input));
+        } catch (exception e) {
+            cout << "Bad arguments" << endl;
+            exit(1);
+        }
+        getline(cin, input);
     }
 
-    for (int i = 0; i < values.size(); i++) {
-        cout << values.at(i) << " ";
-    }
-    cout << endl;
-
-    cout << "Alright, so what's the extra special magic number?" << endl;
-    getline(cin, input);
-    // TO DO, NEED TO HAVE THE MAGIC NUMBER BE USABLE IN SOME WAY
-    if (stol(input) == getMagic(key, rbt)) {
-        cout << "YOU WIN" << endl;
-    } else {
-        cout << "Let me do some calculations..." << endl;
-        system("sleep 30");
-        exit(1);
-    }
+    cout << solution(stoi(key), vals) << endl;
 }
