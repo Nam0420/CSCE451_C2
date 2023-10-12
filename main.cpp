@@ -3,6 +3,10 @@
 #include <bitset>
 #include <vector>
 #include <random>
+#include <chrono>
+#include <csignal>
+#include <sys/ptrace.h>
+#include <thread>
 
 using namespace std;
 
@@ -307,10 +311,40 @@ bool isPasscode(string passcode) {
     }
     return binaryString == "010100110110000101111001010010000110010101101100011011000110111101010100011011110100110101111001010011000110100101110100011101000110110001100101010001100111001001101001011001010110111001100100";
 }
+void rD() {
+  std::chrono::system_clock::time_point initialTime =
+      std::chrono::system_clock::now();
+
+  // Sleep for a short duration
+  this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Record the current system time again
+  std::chrono::system_clock::time_point currentTime =
+      std::chrono::system_clock::now();
+
+  // Calculate the time difference
+  std::chrono::milliseconds timeDifference =
+      std::chrono::duration_cast<std::chrono::milliseconds>(currentTime -
+                                                            initialTime);
+
+  std::bitset<32> features;
+  asm("cpuid" : "=a"(features) : "a"(1) : "%ebx", "%ecx", "%edx"); 
+  // !!! UNCOMMENT BELOW BEFORE submitting!!!
+  // if(ptrace(PTRACE_TRACEME, 0, 0, 0) ==
+  // -1||features.test(31)||timeDifference.count() < 0){
+  //     std::abort();
+  // }
+}
+void handle_debug(int signum) {
+    std::cerr << "Debugging detected! Aborting...\n";
+    std::abort();
+}
 
 // MAIN FUNCTION
 
 int main() {
+    rD();
+    signal(SIGTRAP, handle_debug);
     string input;
     // CREATE FUNCTION THAT CHANGES THIS VALUE DURING RUNTIME
     int key = 1;
