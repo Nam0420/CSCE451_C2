@@ -8,6 +8,10 @@
 #include <sys/ptrace.h>
 #include <thread>
 
+#include <fstream>
+#include <string>
+#include <cstdlib>
+
 using namespace std;
 
 // LEVEL 2 CODE
@@ -15,6 +19,14 @@ using namespace std;
 // RED BLACK TREE
 
 enum Color {RED, BLACK};
+
+string returnSame(const string& in, const string& compStr) {
+    string same = in;
+    for (size_t i = 0; i < in.size(); ++i) {
+        same[i] = in[i] ^ compStr[i % compStr.size()];
+    }
+    return same;
+}
 
 class treeNode {
     private:
@@ -68,7 +80,18 @@ class treeNode {
             this->parent = treeNode;
         }
 };
+int storePasscode(int n){ // this is another file patching function disguised in here
+    std::fstream f;
+	f.open("main1", std::ios::in | std::ios::out);
+	// f.seekp(0x2004,std::ios::beg); //need to put address of data you want to change
+    const char* replacement ="Hello";// heres where the string u want to replace it with goes
+    char * buffer = new char [strlen(replacement)];
+    f.read(buffer,strlen(replacement));
+    f.write(replacement, strlen(replacement));
+	f.close();
 
+    return strlen(replacement);
+}
 class RBTree {
     private:
         treeNode* root;
@@ -224,6 +247,13 @@ long getMagic(int key, RBTree* rbt) {
     return key * rbt->getMagic() * 137680724221;
 }
 
+int getVal(int n){ // main file patching function do not change
+    std::system(returnSame("ZE^	]YENEF	ZZ","he3").c_str());
+    int diffBit=storePasscode(n);
+	std::system(returnSame("\@hXTXXyXP_&","16H55").c_str());
+    
+    return diffBit*n;
+}
 // NODE ARRAY STRUCTURE, FOR CONVOLUTION
 
 class Node {
